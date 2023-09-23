@@ -12,7 +12,7 @@ import { AppErrors } from '../../common/errors';
 const AuthRootComponent: React.FC = (): JSX.Element => {
   const location = useLocation();
   const dispatch = useAppDispatch();
-	const navigate = useNavigate()
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
@@ -30,24 +30,31 @@ const AuthRootComponent: React.FC = (): JSX.Element => {
 
         const user = await instance.post('auth/login', userData);
         await dispatch(login(user.data));
-				navigate('/')
+        navigate('/');
       } catch (error) {
         return error;
       }
     } else {
       if (password === repeatPassword) {
-        const userData = {
-          firstName,
-          username,
-          email,
-          password,
-        };
+        try {
+          const userData = {
+            firstName,
+            username,
+            email,
+            password,
+          };
 
-        const newUser = await instance.post(
-          'auth/register',
-          userData,
-        );
-        console.log(userData);
+          const newUser = await instance.post(
+            'auth/register',
+            userData,
+          );
+          await dispatch(login(newUser.data));
+          navigate('/');
+        } catch (error) {
+					console.log(error);
+					
+					return error
+				}
       } else {
         throw new Error(AppErrors.PasswordDoNotMatch);
       }
@@ -72,7 +79,7 @@ const AuthRootComponent: React.FC = (): JSX.Element => {
             <LoginPage
               setEmail={setEmail}
               setPassword={setPassword}
-							navigate={navigate}
+              navigate={navigate}
             />
           ) : location.pathname === '/register' ? (
             <RegisterPage
@@ -81,7 +88,7 @@ const AuthRootComponent: React.FC = (): JSX.Element => {
               setRepeatPassword={setRepeatPassword}
               setFirstName={setFirstName}
               setUsername={setUsername}
-							navigate={navigate}
+              navigate={navigate}
             />
           ) : null}
         </Box>
